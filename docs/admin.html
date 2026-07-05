@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DJ VaultShield Admin</title>
+  <style>
+    :root {
+      --bg: #07090f;
+      --panel: rgba(18, 24, 38, 0.88);
+      --panel2: rgba(27, 36, 56, 0.92);
+      --border: rgba(255,255,255,0.12);
+      --text: #eef3ff;
+      --muted: #97a3b8;
+      --accent: #7c5cff;
+      --accent2: #00d4ff;
+      --green: #2ee59d;
+      --red: #ff5c7a;
+      --yellow: #ffd166;
+      --shadow: 0 24px 70px rgba(0,0,0,0.45);
+      --radius: 18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(124,92,255,0.38), transparent 32%),
+        radial-gradient(circle at 84% 20%, rgba(0,212,255,0.20), transparent 28%),
+        linear-gradient(135deg, #05070c 0%, #0d1320 48%, #06070b 100%);
+      color: var(--text);
+    }
+    .wrap { width: min(1280px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 46px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .logo { width: 50px; height: 50px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display:grid; place-items:center; box-shadow: 0 18px 40px rgba(124,92,255,0.34); font-weight: 900; letter-spacing: -1px; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: -0.04em; }
+    .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .pill { border: 1px solid var(--border); color: var(--muted); padding: 9px 12px; border-radius: 999px; background: rgba(255,255,255,0.045); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(18px); overflow: hidden; }
+    .card h2 { margin: 0; padding: 18px 18px 6px; font-size: 18px; letter-spacing: -0.02em; }
+    .card .body { padding: 14px 18px 18px; }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+    input, textarea, select { width: 100%; border: 1px solid var(--border); background: rgba(5,8,14,0.72); color: var(--text); border-radius: 12px; padding: 11px 12px; outline: none; font: inherit; }
+    textarea { min-height: 110px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: rgba(124,92,255,0.8); box-shadow: 0 0 0 4px rgba(124,92,255,0.18); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .actions { display:flex; flex-wrap:wrap; gap: 8px; margin-top: 14px; }
+    button { border: 0; color: white; background: linear-gradient(135deg, var(--accent), #5c7cff); border-radius: 12px; padding: 10px 13px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 28px rgba(124,92,255,0.22); }
+    button.secondary { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid var(--border); color: var(--text); }
+    button.green { background: linear-gradient(135deg, #16c784, #2ee59d); }
+    button.red { background: linear-gradient(135deg, #e84868, #ff5c7a); }
+    button.yellow { background: linear-gradient(135deg, #f5a524, #ffd166); color: #18120a; }
+    button:disabled { opacity: 0.52; cursor: not-allowed; }
+    .notice { padding: 12px 14px; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: var(--muted); background: rgba(255,255,255,0.05); line-height: 1.4; }
+    .danger { border-color: rgba(255,92,122,0.35); background: rgba(255,92,122,0.08); color: #ffc8d2; }
+    .ok { border-color: rgba(46,229,157,0.35); background: rgba(46,229,157,0.08); color: #c8ffe9; }
+    .hidden { display: none !important; }
+    .stats { display:grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat { background: var(--panel2); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .stat .num { font-size: 30px; font-weight: 900; letter-spacing: -0.05em; }
+    .stat .cap { color: var(--muted); font-size: 12px; margin-top: 3px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+    td { color: #dce6ff; font-size: 13px; }
+    code { background: rgba(255,255,255,0.08); padding: 2px 5px; border-radius: 6px; color: #cbd6ff; }
+    .badge { display:inline-flex; align-items:center; gap: 6px; padding: 5px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+    .badge.active { color: #baffdf; background: rgba(46,229,157,0.1); border-color: rgba(46,229,157,0.25); }
+    .badge.revoked { color: #ffc1cd; background: rgba(255,92,122,0.1); border-color: rgba(255,92,122,0.25); }
+    .badge.deleted { color: #e5e7eb; background: rgba(255,255,255,0.08); }
+    .mini { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .license-actions { display:flex; flex-wrap:wrap; gap: 6px; }
+    .license-actions button { padding: 8px 9px; font-size: 12px; border-radius: 10px; }
+    .split { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .login { min-height: 100vh; display:grid; place-items:center; padding: 20px; }
+    .login .card { width: min(460px, 100%); }
+    .footer { margin-top: 18px; color: var(--muted); font-size: 12px; text-align: center; }
+    .log { max-height: 220px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height:1.5; background: rgba(0,0,0,0.25); border: 1px solid var(--border); border-radius: 12px; padding: 10px; white-space: pre-wrap; }
+    @media (max-width: 980px) { .grid, .split { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2,1fr); } .topbar { align-items: flex-start; flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <section id="loginView" class="login">
+    <div class="card">
+      <h2>DJ VaultShield Admin</h2>
+      <div class="body">
+        <div class="notice">Diese HTML-Seite läuft ohne Node. Schreibzugriff läuft über deinen GitHub Token, der nur in deinem Browser eingegeben wird.</div>
+        <label>Admin Passwort</label>
+        <input id="passwordInput" type="password" placeholder="Passwort eingeben" autocomplete="current-password">
+        <div class="actions"><button id="loginBtn">Einloggen</button></div>
+        <div id="loginMsg" class="mini"></div>
+      </div>
+    </div>
+  </section>
+
+  <main id="appView" class="wrap hidden">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">DJ</div>
+        <div>
+          <h1>DJ VaultShield</h1>
+          <div class="sub">HTML Lizenzverwaltung für FiveM Resources</div>
+        </div>
+      </div>
+      <div class="pill" id="repoState">Nicht verbunden</div>
+    </div>
+
+    <div class="grid">
+      <section>
+        <div class="card">
+          <h2>GitHub Verbindung</h2>
+          <div class="body">
+            <div class="notice">Token braucht Zugriff auf dein Lizenz-Repo. Empfohlen: Fine-grained token nur für dieses Repo mit <b>Contents: Read and write</b>.</div>
+            <div class="row">
+              <div><label>Owner</label><input id="owner" placeholder="GitHub Name"></div>
+              <div><label>Repo</label><input id="repo" placeholder="Repo Name"></div>
+            </div>
+            <div class="row">
+              <div><label>Branch</label><input id="branch" value="main"></div>
+              <div><label>License-Datei</label><input id="licensePath" value="docs/licenses.json"></div>
+            </div>
+            <label>GitHub Token</label>
+            <input id="token" type="password" placeholder="github_pat_...">
+            <div class="actions">
+              <button id="saveSettingsBtn" class="secondary">Merken</button>
+              <button id="loadBtn">Lizenzen laden</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h2>Lizenz importieren</h2>
+          <div class="body">
+            <label>license_entry_*.json</label>
+            <input id="licenseFile" type="file" accept="application/json,.json">
+            <div class="actions"><button id="importBtn" class="green">Importieren & Speichern</button></div>
+            <div class="mini">Erstellt vom Packer. Danach erscheint der Server direkt in der Tabelle.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h2>Asset hochladen</h2>
+          <div class="body">
+            <label>Datei / ZIP</label>
+            <input id="uploadFile" type="file">
+            <label>Zielordner</label>
+            <input id="uploadDir" value="docs/uploads">
+            <div class="actions"><button id="uploadBtn">Hochladen</button></div>
+            <div class="mini">Lädt über GitHub direkt in dein Repo. Die öffentliche URL liegt danach unter GitHub Pages.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h2>Log</h2>
+          <div class="body"><div id="log" class="log"></div></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="stats">
+          <div class="stat"><div class="num" id="countAll">0</div><div class="cap">Lizenzen</div></div>
+          <div class="stat"><div class="num" id="countActive">0</div><div class="cap">Aktiv</div></div>
+          <div class="stat"><div class="num" id="countRevoked">0</div><div class="cap">Deaktiviert</div></div>
+          <div class="stat"><div class="num" id="countLive">0</div><div class="cap">Live erreichbar</div></div>
+        </div>
+
+        <div class="card">
+          <h2>Zugriff verwalten</h2>
+          <div class="body">
+            <div class="split">
+              <input id="search" placeholder="Suchen nach Server, Produkt, Hash ...">
+              <button id="liveCheckAllBtn" class="secondary">Live Check</button>
+            </div>
+            <div style="overflow:auto; margin-top:12px">
+              <table>
+                <thead><tr><th>Status</th><th>Server</th><th>Produkt</th><th>Live</th><th>Aktionen</th></tr></thead>
+                <tbody id="licenseRows"><tr><td colspan="5" class="mini">Noch keine Daten geladen.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="footer">DJ VaultShield Admin läuft vollständig als HTML/JS im Browser. Ohne GitHub Token kann die Seite nur lesen, nicht speichern.</div>
+  </main>
+
+<script>
+const PASSWORD_PBKDF2 = {
+  iterations: 210000,
+  salt: 'dj_vaultshield_admin_v1_4f7a8d3b22e6',
+  hashHex: 'a733b76e5784dcb493f9b16b4c1ab0e7465298e031839a615f1d21d078572db9'
+};
+const $ = (id) => document.getElementById(id);
+let db = { version: 1, licenses: [] };
+let sha = null;
+let liveState = new Map();
+
+function log(msg) {
+  const t = new Date().toLocaleTimeString('de-DE');
+  $('log').textContent = `[${t}] ${msg}\n` + $('log').textContent;
+}
+function toHex(buffer) { return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2,'0')).join(''); }
+async function pbkdf2Hex(password) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name:'PBKDF2', salt: enc.encode(PASSWORD_PBKDF2.salt), iterations: PASSWORD_PBKDF2.iterations, hash:'SHA-256' }, key, 256);
+  return toHex(bits);
+}
+function b64Unicode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+function readSettings() {
+  const s = JSON.parse(localStorage.getItem('dj_vaultshield_admin') || '{}');
+  $('owner').value = s.owner || '';
+  $('repo').value = s.repo || '';
+  $('branch').value = s.branch || 'main';
+  $('licensePath').value = s.licensePath || 'docs/licenses.json';
+  $('token').value = sessionStorage.getItem('dj_vaultshield_token') || '';
+}
+function saveSettings() {
+  localStorage.setItem('dj_vaultshield_admin', JSON.stringify({ owner:$('owner').value.trim(), repo:$('repo').value.trim(), branch:$('branch').value.trim() || 'main', licensePath:$('licensePath').value.trim() || 'docs/licenses.json' }));
+  if ($('token').value.trim()) sessionStorage.setItem('dj_vaultshield_token', $('token').value.trim());
+  log('Einstellungen gespeichert. Token bleibt nur in dieser Browser-Session.');
+}
+function apiUrl(path) {
+  const owner = $('owner').value.trim(); const repo = $('repo').value.trim();
+  if (!owner || !repo) throw new Error('Owner und Repo fehlen.');
+  return `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+}
+async function gh(method, path, body) {
+  const token = $('token').value.trim() || sessionStorage.getItem('dj_vaultshield_token') || '';
+  const headers = { 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(apiUrl(path), { method, headers, body: body ? JSON.stringify(body) : undefined });
+  const text = await res.text();
+  let json = null; try { json = text ? JSON.parse(text) : null; } catch {}
+  if (!res.ok) throw new Error((json && json.message) ? json.message : `GitHub API Fehler ${res.status}`);
+  return json;
+}
+async function loadLicenses() {
+  saveSettings();
+  const path = $('licensePath').value.trim() || 'docs/licenses.json';
+  const data = await gh('GET', `${path}?ref=${encodeURIComponent($('branch').value.trim() || 'main')}`);
+  sha = data.sha;
+  const raw = atob(String(data.content || '').replace(/\s/g,''));
+  const bytes = Uint8Array.from(raw, c => c.charCodeAt(0));
+  db = JSON.parse(new TextDecoder().decode(bytes));
+  if (!Array.isArray(db.licenses)) db.licenses = [];
+  $('repoState').textContent = `${$('owner').value}/${$('repo').value} verbunden`;
+  render();
+  log(`${db.licenses.length} Lizenzen geladen.`);
+}
+async function saveLicenses(message) {
+  const path = $('licensePath').value.trim() || 'docs/licenses.json';
+  db.version = db.version || 1;
+  db.updatedAt = new Date().toISOString();
+  const content = b64Unicode(JSON.stringify(db, null, 2) + '\n');
+  const body = { message: message || 'DJ VaultShield licenses update', content, branch: $('branch').value.trim() || 'main' };
+  if (sha) body.sha = sha;
+  const res = await gh('PUT', path, body);
+  sha = res.content.sha;
+  render();
+  log('licenses.json gespeichert: ' + (message || 'Update'));
+}
+function licenseStatusBadge(status) {
+  const s = status || 'unknown';
+  const cls = s === 'active' ? 'active' : (s === 'revoked' ? 'revoked' : 'deleted');
+  return `<span class="badge ${cls}">${escapeHtml(s)}</span>`;
+}
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function shortHash(s) { return s ? String(s).slice(0,10) + '...' : '-'; }
+function matchesSearch(lic) {
+  const q = $('search').value.trim().toLowerCase();
+  if (!q) return true;
+  return [lic.id, lic.serverName, lic.productId, lic.serverHash, lic.status].some(v => String(v || '').toLowerCase().includes(q));
+}
+function render() {
+  const list = (db.licenses || []);
+  $('countAll').textContent = list.length;
+  $('countActive').textContent = list.filter(l => l.status === 'active').length;
+  $('countRevoked').textContent = list.filter(l => l.status === 'revoked').length;
+  $('countLive').textContent = [...liveState.values()].filter(v => v && v.ok).length;
+  const rows = list.filter(matchesSearch).map((lic, idx) => {
+    const live = liveState.get(lic.id);
+    const liveHtml = live ? (live.ok ? `<span class="badge active">online</span><div class="mini">${escapeHtml(live.text || '')}</div>` : `<span class="badge revoked">offline</span><div class="mini">${escapeHtml(live.text || '')}</div>`) : `<span class="badge deleted">unbekannt</span><div class="mini">${lic.statusUrl ? 'Live Check möglich' : 'Keine Status-URL'}</div>`;
+    return `<tr>
+      <td>${licenseStatusBadge(lic.status)}<div class="mini">${escapeHtml(lic.id || '')}</div></td>
+      <td><b>${escapeHtml(lic.serverName || 'Unbenannt')}</b><div class="mini">Hash: <code>${escapeHtml(shortHash(lic.serverHash))}</code></div>${lic.expiresAt ? `<div class="mini">Ablauf: ${escapeHtml(lic.expiresAt)}</div>` : ''}</td>
+      <td><code>${escapeHtml(lic.productId || '')}</code><div class="mini">${escapeHtml(lic.statusUrl || '')}</div></td>
+      <td>${liveHtml}</td>
+      <td><div class="license-actions">
+        <button class="green" onclick="setStatus(${idx}, 'active')">Aktivieren</button>
+        <button class="yellow" onclick="setStatus(${idx}, 'revoked')">Deaktivieren</button>
+        <button class="red" onclick="deleteLicense(${idx})">Löschen</button>
+        <button class="secondary" onclick="editStatusUrl(${idx})">Status-URL</button>
+        <button class="secondary" onclick="liveCheckOne(${idx})">Live</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  $('licenseRows').innerHTML = rows || '<tr><td colspan="5" class="mini">Keine passenden Lizenzen.</td></tr>';
+}
+async function setStatus(idx, status) {
+  const lic = db.licenses[idx]; if (!lic) return;
+  lic.status = status;
+  lic.updatedAt = new Date().toISOString();
+  await saveLicenses(`DJ VaultShield ${status}: ${lic.productId} ${lic.serverName || lic.id}`);
+}
+async function deleteLicense(idx) {
+  const lic = db.licenses[idx]; if (!lic) return;
+  if (!confirm(`Lizenz wirklich löschen?\n\n${lic.serverName || lic.id}\n${lic.productId}\n\nDie Resource startet danach nicht mehr.`)) return;
+  db.licenses.splice(idx, 1);
+  await saveLicenses(`DJ VaultShield delete: ${lic.productId} ${lic.serverName || lic.id}`);
+}
+function editStatusUrl(idx) {
+  const lic = db.licenses[idx]; if (!lic) return;
+  const url = prompt('Status-URL des Servers, optional. Beispiel: http://IP:30120/RESOURCE_NAME/dj_vaultshield/status', lic.statusUrl || '');
+  if (url === null) return;
+  lic.statusUrl = url.trim();
+  lic.updatedAt = new Date().toISOString();
+  saveLicenses(`DJ VaultShield status-url: ${lic.productId} ${lic.serverName || lic.id}`).catch(e => alert(e.message));
+}
+async function liveCheckOne(idx) {
+  const lic = db.licenses[idx]; if (!lic) return;
+  if (!lic.statusUrl) { liveState.set(lic.id, { ok:false, text:'Keine Status-URL gesetzt.' }); render(); return; }
+  try {
+    const res = await fetch(lic.statusUrl + (lic.statusUrl.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache:'no-store' });
+    const text = await res.text();
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + text.slice(0,80));
+    let j = null; try { j = JSON.parse(text); } catch {}
+    liveState.set(lic.id, { ok:true, text: j ? `${j.resource || ''} ${j.started ? 'gestartet' : 'nicht gestartet'} | ${j.status || ''}` : text.slice(0,120) });
+  } catch (e) {
+    liveState.set(lic.id, { ok:false, text:e.message });
+  }
+  render();
+}
+async function liveCheckAll() {
+  for (let i = 0; i < (db.licenses || []).length; i++) await liveCheckOne(i);
+  log('Live Check abgeschlossen.');
+}
+async function importLicense() {
+  const f = $('licenseFile').files[0];
+  if (!f) throw new Error('Keine Lizenzdatei ausgewählt.');
+  const entry = JSON.parse(await f.text());
+  if (!entry.productId || !entry.serverHash || !entry.encryptedKey) throw new Error('Ungültige license_entry Datei.');
+  if (!entry.id) entry.id = 'lic_' + crypto.randomUUID().replaceAll('-','').slice(0,16);
+  entry.status = entry.status || 'active';
+  entry.createdAt = entry.createdAt || new Date().toISOString();
+  entry.updatedAt = new Date().toISOString();
+  const existing = db.licenses.findIndex(l => l.id === entry.id || (l.productId === entry.productId && l.serverHash === entry.serverHash));
+  if (existing >= 0) db.licenses[existing] = { ...db.licenses[existing], ...entry };
+  else db.licenses.push(entry);
+  await saveLicenses(`DJ VaultShield import: ${entry.productId} ${entry.serverName || entry.id}`);
+}
+async function uploadAsset() {
+  const f = $('uploadFile').files[0];
+  if (!f) throw new Error('Keine Datei ausgewählt.');
+  const dir = ($('uploadDir').value.trim() || 'docs/uploads').replace(/^\/+|\/+$/g, '');
+  const safe = f.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  const path = `${dir}/${Date.now()}_${safe}`;
+  const buf = await f.arrayBuffer();
+  let bin = ''; for (const b of new Uint8Array(buf)) bin += String.fromCharCode(b);
+  const content = btoa(bin);
+  await gh('PUT', path, { message: `DJ VaultShield upload: ${safe}`, content, branch: $('branch').value.trim() || 'main' });
+  log(`Upload gespeichert: ${path}`);
+}
+
+$('loginBtn').onclick = async () => {
+  $('loginMsg').textContent = 'Prüfe Passwort...';
+  const hash = await pbkdf2Hex($('passwordInput').value);
+  if (hash === PASSWORD_PBKDF2.hashHex) {
+    sessionStorage.setItem('dj_vaultshield_logged_in','1');
+    $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); readSettings(); log('Admin angemeldet.');
+  } else $('loginMsg').textContent = 'Falsches Passwort.';
+};
+$('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('loginBtn').click(); });
+$('saveSettingsBtn').onclick = saveSettings;
+$('loadBtn').onclick = () => loadLicenses().catch(e => { log('Fehler: ' + e.message); alert(e.message); });
+$('importBtn').onclick = () => importLicense().catch(e => { log('Fehler: ' + e.message); alert(e.message); });
+$('uploadBtn').onclick = () => uploadAsset().catch(e => { log('Fehler: ' + e.message); alert(e.message); });
+$('search').oninput = render;
+$('liveCheckAllBtn').onclick = () => liveCheckAll().catch(e => { log('Fehler: ' + e.message); alert(e.message); });
+window.setStatus = setStatus;
+window.deleteLicense = deleteLicense;
+window.editStatusUrl = editStatusUrl;
+window.liveCheckOne = liveCheckOne;
+if (sessionStorage.getItem('dj_vaultshield_logged_in') === '1') { $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); readSettings(); }
+</script>
+</body>
+</html>
