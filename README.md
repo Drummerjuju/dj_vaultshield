@@ -35,3 +35,15 @@ Variante B über GitHub:
 - `status=suspended` = vorläufig gesperrt.
 
 Die FiveM-Resource prüft die Lizenz beim Start und danach regelmäßig. Nach dem Sperren kann es je nach Cache/Intervall ein paar Minuten dauern.
+
+## Uploads über Admin-Panel
+
+Das lokale Admin-Panel kann fertige ZIPs oder Dateien nach `docs/uploads` schreiben. Diese Dateien werden dann über GitHub Pages öffentlich abrufbar.
+
+Die Übersicht liegt in:
+
+```text
+docs/uploads/index.json
+```
+
+Wichtig: Lade hier am besten nur bereits geschützte/verpackte Ressourcen hoch, nicht deinen ungeschützten Quellcode.
